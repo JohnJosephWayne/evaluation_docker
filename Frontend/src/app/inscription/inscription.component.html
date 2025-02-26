@@ -1,0 +1,73 @@
+<h2>INSCRIPTION</h2>
+<form class="login" [formGroup]="formulaire" (ngSubmit)="onInscription()">
+  <mat-form-field>
+    <mat-label>Email</mat-label>
+    <input
+      matInput
+      formControlName="email"
+      placeholder="Ex. john.doe@domain.com"
+    />
+
+    @if(formulaire.get("email")?.hasError('required')){
+      <mat-error>L'email est obligatoire</mat-error>
+    } @if(formulaire.get("email")?.hasError('email')){
+    <mat-error>L'email est mal formé</mat-error>
+  }
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Mot de passe</mat-label>
+    <input
+      matInput
+      formControlName="password"
+      [type]="afficheMotDePasse ? 'text' : 'password'"
+    />
+    <button
+      type="button"
+      mat-icon-button
+      matSuffix
+      (click)="afficheMotDePasse = !afficheMotDePasse"
+      [attr.aria-label]="'Hide password'"
+      [attr.aria-pressed]="afficheMotDePasse"
+    >
+      <mat-icon>{{
+          afficheMotDePasse ? "visibility" : "visibility_off"
+        }}</mat-icon>
+    </button>
+
+    <mat-error>Le mot de passe est obligatoire</mat-error>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Votre nom</mat-label>
+    <input
+      matInput
+      formControlName="lastname"
+      placeholder="Votre nom de famille"
+    />
+    @if(formulaire.get("lastname")?.hasError('required')){
+      <mat-error>Le nom de famille est obligatoire</mat-error>
+  }
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Votre prénom</mat-label>
+    <input
+      matInput
+      formControlName="firstname"
+      placeholder="Votre prénom"
+    />
+
+    @if(formulaire.get("firstname")?.hasError('required')){
+      <mat-error>Le prénom est obligatoire</mat-error>
+    }
+  </mat-form-field>
+  <mat-radio-group formControlName="gender" aria-label="Selectionner un genre">
+    <mat-radio-button value="H">Homme</mat-radio-button>
+    <mat-radio-button value="F">Femme</mat-radio-button>
+    <mat-radio-button value="A">Autre</mat-radio-button>
+  </mat-radio-group>
+
+    <button type="submit" mat-raised-button color="primary">
+    Créer mon compte
+  </button>
+</form>

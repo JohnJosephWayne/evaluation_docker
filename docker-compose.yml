@@ -1,14 +1,24 @@
 services:
+  # Backend service (Node.js)
   app:
-    build: .
-    #deploy:
-     # replicas: 3
+    build:
+      context: ./Backend
+      dockerfile: backend.Dockerfile
     networks:
       - backend
       - proxy
     depends_on:
       - db
 
+  # Frontend service (Angular + Nginx)
+  static:
+    build:
+      context: ./Frontend
+      dockerfile: frontend.Dockerfile
+    networks:
+      - proxy
+
+  # Nginx reverse proxy service
   reverse-proxy:
     image: nginx:1.27
     restart: always
@@ -22,6 +32,7 @@ services:
       - app
       - static
 
+  # MySQL database service
   db:
     image: mysql:latest
     container_name: db
@@ -31,7 +42,10 @@ services:
       - "3306:3306"
     volumes:
       - dbdata:/var/lib/mysql
+    networks:
+      - backend
 
+  # PHPMyAdmin for database management
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: pma_eval
@@ -43,11 +57,6 @@ services:
     restart: always
     ports:
       - "8181:80"
-
-  static:
-    image: nginx:1.27
-    volumes:
-      - ./assets:/usr/share/nginx/html
     networks:
       - proxy
 
