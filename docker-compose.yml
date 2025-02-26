@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    deploy:
+      replicas: 3
+    networks:
+      - backend
+      - proxy
+    depends_on:
+      - db
+
+  reverse-proxy:
+    image: nginx:1.27
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./reverse-proxy.conf:/etc/nginx/templates/default.conf.template
+    networks:
+      - proxy
+    depends_on:
+      - app
+      - static
+
+  db:
+    image: mysql:latest
+    container_name: db_admin_mns
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma_admin_mns
+    links:
+      - db_admin_mns
+  environment:
+    PMA_HOST: db_admin_mns
+    PMA_PORT: 3306
+    restart: always
+    ports:
+      - 8181:80
+
+networks:
+  backend:
+  proxy:
+
+
+volumes:
+  dbdata:
