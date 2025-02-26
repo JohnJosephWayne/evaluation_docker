@@ -1,10 +1,8 @@
-version: '3'
-
 services:
   app:
     build: .
-    deploy:
-      replicas: 3
+    #deploy:
+     # replicas: 3
     networks:
       - backend
       - proxy
@@ -26,7 +24,7 @@ services:
 
   db:
     image: mysql:latest
-    container_name: db_admin_mns
+    container_name: db
     environment:
       MYSQL_ROOT_PASSWORD: root
     ports:
@@ -36,8 +34,8 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: pma_admin_mns
-    links:
+    container_name: pma_eval
+    depends_on:
       - db
     environment:
       PMA_HOST: db
@@ -45,6 +43,13 @@ services:
     restart: always
     ports:
       - "8181:80"
+
+  static:
+    image: nginx:1.27
+    volumes:
+      - ./assets:/usr/share/nginx/html
+    networks:
+      - proxy
 
 networks:
   backend:
