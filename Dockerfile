@@ -1,7 +1,8 @@
 FROM node:22
 COPY package.json .
-#RUN npm install -y
-#RUN npm install express mysql2 -y
-COPY server.js .
+RUN npm install
+#RUN npm install express mysql2
+COPY server.js /app/
+WORKDIR /app
 EXPOSE 3000
-ENTRYPOINT npm start
+ENTRYPOINT ["node", "server.js"]
