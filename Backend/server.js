@@ -1,57 +1,61 @@
-const express = require('express');
-const mysql = require('mysql2');
-const server = express();
+const fs = require("fs");
+const path = require("path");
+const express = require("express");
+const axios = require("axios");
+
+const app = express();
 const port = 3000;
 
-// Middleware pour parser le JSON
-server.use(express.json());
+const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/{{TON_WEBHOOK}}"; // Remplace avec ton vrai webhook
 
-// Connexion à la base de données MySQL
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'root', // à mettre en variable
-    database: 'test_db'
-});
+/**
+ * Envoie une notification sur Discord
+ * @param {string} imageUrl - L'URL de l'image générée
+ */
+async function sendDiscordNotification(imageUrl) {
+    try {
+        const message = {
+            content: `📢 Nouvelle image disponible ! 🔥\n${imageUrl}`,
+        };
 
-// Connexion à MySQL
-db.connect(err => {
-    if (err) {
-        console.error('Erreur de connexion à MySQL:', err);
-        return;
+        await axios.post(DISCORD_WEBHOOK_URL, message);
+        console.log("✅ Notification envoyée sur Discord !");
+    } catch (error) {
+        console.error("❌ Erreur lors de l'envoi du message Discord :", error.message);
     }
-    console.log('Connecté à la base de données MySQL');
+}
+
+// Assure-toi que le dossier logs existe
+const logDir = path.join(__dirname, "logs");
+if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true });
+}
+
+const logFile = path.join(logDir, "server.log");
+
+// Middleware pour logger chaque requête HTTP
+app.use((req, res, next) => {
+    const logEntry = `[${new Date().toISOString()}] ${req.method} ${req.url}\n`;
+    fs.appendFileSync(logFile, logEntry); // Ajout des logs dans le fichier
+    console.log(logEntry.trim()); // Affichage aussi dans la console
+    next();
 });
 
-// Route pour récupérer tous les utilisateurs
-server.get('/users', (req, res) => {
-    db.query('SELECT * FROM users', (err, results) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return;
-        }
-        res.json(results);
-    });
-});
-
-// Route pour ajouter un utilisateur
-server.post('/users', (req, res) => {
-    const { name, email } = req.body;
-    if (!name || !email) {
-        res.status(400).json({ error: 'Veuillez fournir un nom et un email' });
-        return;
+// ✅ Nouvel endpoint pour récupérer les logs
+app.get("/logs", (req, res) => {
+    if (fs.existsSync(logFile)) {
+        const logs = fs.readFileSync(logFile, "utf8");
+        res.type("text/plain").send(logs);
+    } else {
+        res.status(404).send("Aucun log disponible.");
     }
-    const sql = 'INSERT INTO users (name, email) VALUES (?, ?)';
-    db.query(sql, [name, email], (err, result) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return;
-        }
-        res.json({ id: result.insertId, name, email });
-    });
 });
 
-// Démarrer le serveur
-server.listen(port, () => {
-    console.log(`Serveur en cours d'exécution sur http://localhost:${port}`);
+// Endpoint principal
+app.get("/", (req, res) => {
+    res.send("Serveur Node.js en cours d'exécution...");
+});
+
+app.listen(port, () => {
+    console.log(`✅ Serveur démarré sur http://localhost:${port}`);
 });

@@ -1,3 +1,4 @@
+
 services:
   # Backend service (Node.js)
   app:
@@ -9,12 +10,16 @@ services:
       - proxy
     depends_on:
       - db
+    volumes:
+      - app_logs:/app/logs
 
   # Frontend service (Angular + Nginx)
   static:
     build:
       context: ./Frontend
       dockerfile: frontend.Dockerfile
+    ports:
+      - "3000:80"
     networks:
       - proxy
 
@@ -26,6 +31,7 @@ services:
       - "80:80"
     volumes:
       - ./reverse-proxy.conf:/etc/nginx/templates/default.conf.template
+      - nginx_logs:/var/log/nginx
     networks:
       - proxy
     depends_on:
@@ -66,3 +72,5 @@ networks:
 
 volumes:
   dbdata:
+  app_logs:
+  nginx_logs:
