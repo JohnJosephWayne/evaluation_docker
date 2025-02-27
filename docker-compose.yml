@@ -18,6 +18,8 @@ services:
     build:
       context: ./Frontend
       dockerfile: frontend.Dockerfile
+    volumes:
+      - nginx_logs:/var/log/nginx
     ports:
       - "3000:80"
     networks:
@@ -31,7 +33,6 @@ services:
       - "80:80"
     volumes:
       - ./reverse-proxy.conf:/etc/nginx/templates/default.conf.template
-      - nginx_logs:/var/log/nginx
     networks:
       - proxy
     depends_on:
