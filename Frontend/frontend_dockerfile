@@ -6,7 +6,6 @@ WORKDIR /app
 
 # Copy the rest of the application files and build the Angular app
 COPY ./Frontend .
-COPY .env .
 RUN npm install
 
 
