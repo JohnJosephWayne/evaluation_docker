@@ -1,49 +1,27 @@
-
 services:
-  # Backend service (Node.js)
-  app:
-    image: johnjosephwayne/evaluation_docker/main
-#    build:
-#      context: ./Backend
-#      dockerfile: Backend/backend_dockerfile
+  backend:
+    build:
+      context: .
+      dockerfile: ./Backend/backend.Dockerfile
+    image: johnjosephwayne/evaluation_docker:backend
     networks:
       - backend
       - proxy
     depends_on:
       - db
-    volumes:
-      - app_logs:/app/logs
+    environment:
+      - NODE_ENV=production
 
-  # Frontend service (Angular + Nginx)
-  static:
-    image: johnjosephwayne/evaluation_docker/frontend:latest
-#    build:
-#      context: ./Frontend
-#      dockerfile: Frontend/frontend_dockerfile
-    volumes:
-      - nginx_logs:/var/log/nginx
-    ports:
-      - "3000:80"
+  frontend:
+    build:
+      context: .
+      dockerfile: ./Frontend/frontend.Dockerfile
+    image: johnjosephwayne/evaluation_docker:frontend
     networks:
       - proxy
     depends_on:
       - db
 
-  # Nginx reverse proxy service
-  reverse-proxy:
-    image: nginx:1.27
-    restart: always
-    ports:
-      - "80:80"
-    volumes:
-      - ./reverse-proxy.conf:/etc/nginx/templates/default.conf.template
-    networks:
-      - proxy
-    depends_on:
-      - app
-      - static
-
-  # MySQL database service
   db:
     image: mysql:latest
     container_name: db
@@ -51,32 +29,9 @@ services:
       MYSQL_ROOT_PASSWORD: root
     ports:
       - "3306:3306"
-    volumes:
-      - dbdata:/var/lib/mysql
     networks:
       - backend
-
-  # PHPMyAdmin for database management
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: pma_eval
-    depends_on:
-      - db
-    environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-    restart: always
-    ports:
-      - "8181:80"
-    networks:
-      - backend
-      - proxy
 
 networks:
   backend:
   proxy:
-
-volumes:
-  dbdata:
-  app_logs:
-  nginx_logs:
