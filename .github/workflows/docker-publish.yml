@@ -1,10 +1,8 @@
-
-
 name: Publish Docker image
 
 on:
   push:
-     branches: [ "main" ]
+    branches: [ "main" ]
 
 jobs:
   push_to_registry:
@@ -15,6 +13,7 @@ jobs:
       contents: read
       attestations: write
       id-token: write
+
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -31,7 +30,7 @@ jobs:
         with:
           images: johnjosephwayne/evaluation_docker
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image (Backend)
         id: pushBack
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
         with:
@@ -41,7 +40,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image (Frontend)
         id: pushFront
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
         with:
@@ -55,10 +54,11 @@ jobs:
         uses: actions/attest-build-provenance@v2
         with:
           subject-name: index.docker.io/johnjosephwayne/evaluation_docker
-          subject-digest: ${{ steps.push.outputs.digest }}
+          subject-digest: ${{ steps.pushBack.outputs.digest }}
           push-to-registry: true
 
       - name: Send Notification to Discord
         run: |
-        curl -X POST -H "Content-Type: application/json" \
-        -d '{"content": "Nouvelle image Docker publiée !\nTag: `latest`\nRepo: myrepo/myimage"}' "${{ secrets.DISCORD_WEBHOOK_URL }}"
+          curl -X POST -H "Content-Type: application/json" \
+          -d '{"content": "Nouvelle image Docker publiée !\nTag: `latest`\nRepo: myrepo/myimage"}' \
+          "${{ secrets.DISCORD_WEBHOOK_URL }}"
