@@ -6,7 +6,7 @@ const axios = require("axios");
 const app = express();
 const port = 3000;
 
-const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/{{TON_WEBHOOK}}"; // Remplace avec ton vrai webhook
+const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1354026102191951973/7AGR4sicxlmW75O6aVrttlT7GX-Br1Ibx3V94DqjTFS8GB7HPBoP9Z5Ge-K6Ob_eM0Zx";
 
 /**
  * Envoie une notification sur Discord
