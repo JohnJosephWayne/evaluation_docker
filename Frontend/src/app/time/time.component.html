@@ -1,0 +1,7 @@
+<h2>Stored Times</h2>
+<button (click)="addTime()">Add Current Time</button>
+<ul>
+    <li *ngFor="let time of times">
+      {{ time.id }} - {{ time.time }}
+    </li>
+</ul>
