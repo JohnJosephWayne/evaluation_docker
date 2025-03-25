@@ -15,7 +15,7 @@ const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/135402610219195197
 async function sendDiscordNotification(imageUrl) {
     try {
         const message = {
-            content: `📢 Nouvelle image disponible ! 🔥\n${imageUrl}`,
+            content: `Image envoyé 🔥\n${imageUrl}`,
         };
 
         await axios.post(DISCORD_WEBHOOK_URL, message);
