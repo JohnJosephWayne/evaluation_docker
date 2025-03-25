@@ -5,7 +5,7 @@ FROM node:20 AS build
 WORKDIR /app
 
 # Copy package.json and package-lock.json to install dependencies
-COPY ./package.json ./package-lock.json ./
+COPY ./Frontend/package.json ./Frontend/package-lock.json ./
 RUN npm install
 
 # Copy the rest of the application files and build the Angular app
@@ -19,7 +19,7 @@ FROM nginx:1.27
 COPY --from=build /app/dist/backoffice-adminmns/browser /usr/share/nginx/html
 
 # Copy the custom Nginx configuration
-COPY ./nginx_angular.conf /etc/nginx/nginx.conf
+COPY ./Frontend/nginx_angular.conf /etc/nginx/nginx.conf
 
 # Expose port 80 for Nginx to serve the frontend
 EXPOSE 80

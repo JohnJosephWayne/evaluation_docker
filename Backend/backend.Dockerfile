@@ -5,11 +5,11 @@ FROM node:20 AS backend
 WORKDIR /app
 
 # Copy package.json and install dependencies
-COPY ./package.json ./package-lock.json ./
+COPY ./Backend/package.json ./Backend/package-lock.json ./
 RUN npm install
 
 # Copy the server.js file
-COPY ./server.js .
+COPY ./Backend/server.js .
 
 # Expose port 3000 for the Node.js backend
 EXPOSE 3000
