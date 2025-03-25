@@ -4,7 +4,7 @@ services:
   app:
     build:
       context: ./Backend
-      dockerfile: backend.Dockerfile
+      dockerfile: Backend/backend_dockerfile
     networks:
       - backend
       - proxy
@@ -17,7 +17,7 @@ services:
   static:
     build:
       context: ./Frontend
-      dockerfile: frontend.Dockerfile
+      dockerfile: Frontend/frontend_dockerfile
     volumes:
       - nginx_logs:/var/log/nginx
     ports:
