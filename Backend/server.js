@@ -2,11 +2,11 @@ const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const axios = require("axios");
+const process = require('dotenv').config();
 
 const app = express();
 const port = 3000;
-
-const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1354026102191951973/7AGR4sicxlmW75O6aVrttlT7GX-Br1Ibx3V94DqjTFS8GB7HPBoP9Z5Ge-K6Ob_eM0Zx";
+const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
 /**
  * Envoie une notification sur Discord
