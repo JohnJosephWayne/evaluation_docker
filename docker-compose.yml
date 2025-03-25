@@ -2,7 +2,7 @@
 services:
   # Backend service (Node.js)
   app:
-    image: johnjosephwayne/evaluation_docker/app:latest
+    image: johnjosephwayne/evaluation_docker/main
 #    build:
 #      context: ./Backend
 #      dockerfile: Backend/backend_dockerfile
@@ -15,7 +15,7 @@ services:
       - app_logs:/app/logs
 
   # Frontend service (Angular + Nginx)
-  frontend:
+  static:
     image: johnjosephwayne/evaluation_docker/frontend:latest
 #    build:
 #      context: ./Frontend
@@ -41,7 +41,7 @@ services:
       - proxy
     depends_on:
       - app
-      - frontend
+      - static
 
   # MySQL database service
   db:
