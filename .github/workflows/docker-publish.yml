@@ -59,6 +59,9 @@ jobs:
 
       - name: Send Notification to Discord
         run: |
+          # Récupérer dynamiquement le tag et le repo à partir de l'étape de métadonnées
+          REPO="johnjosephwayne/evaluation_docker"
+          TAG="${{ steps.meta.outputs.tags }}"
           curl -X POST -H "Content-Type: application/json" \
-          -d '{"content": "Nouvelle image Docker publiée !\nTag: `latest`\nRepo: myrepo/myimage"}' \
+          -d "{\"content\": \"Nouvelle image Docker publiée !\\nTag: \`$TAG\`\\nRepo: $REPO\"}" \
           "${{ secrets.DISCORD_WEBHOOK_URL }}"
