@@ -61,5 +61,5 @@ jobs:
       - name: Send Notification to Discord
         run: |
         curl -X POST -H "Content-Type: application/json" \
-        -d '{"content": "🚀 Nouvelle image Docker publiée !\nTag: `latest`\nRepo: myrepo/myimage"}' " ${{ process.env.DISCORD_WEBHOOK_URL }}"
-
+        -d '{"content": "🚀 Nouvelle image Docker publiée !\nTag: `latest`\nRepo: myrepo/myimage"}' \
+         "${{ secrets.DISCORD_WEBHOOK_URL }}"
