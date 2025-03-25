@@ -1,20 +1,20 @@
-# Use Node.js 20 as the base image
+# Use Node.js as base
 FROM node:20 AS backend
 
-# Set the working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json first (to improve caching)
+# Copy package.json and package-lock.json first (cache optimization)
 COPY ./Backend/package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy the rest of the backend files
+# Copy the rest of the application
 COPY ./Backend .
 
-# Expose the backend port
+# Expose port 3000
 EXPOSE 3000
 
-# Run the backend server
+# Start the backend
 CMD ["node", "server.js"]
