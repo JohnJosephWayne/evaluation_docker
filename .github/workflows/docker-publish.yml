@@ -72,4 +72,80 @@ jobs:
           TAG="${{ steps.meta.outputs.tags }}"
           curl -X POST -H "Content-Type: application/json" \
           -d "{\"content\": \"Nouvelle image Docker publiée !\\nTag: \`$TAG\`\\nRepo: $REPO\"}" \
+          "${{ secrets.DISCORD_WEBHOOK_URL }}"name: Publish Docker image
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  push_to_registry:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: johnjosephwayne/evaluation_docker
+
+      - name: Build and push Docker image (Backend)
+        id: pushBack
+        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+        with:
+          context: .
+          file: ./Backend/backend_dockerfile
+          push: true
+          tags: |
+            johnjosephwayne/evaluation_docker:latest
+            johnjosephwayne/evaluation_dockerackend-${{ github.sha }}
+          labels: |
+            version=1.0
+            component=backend
+
+      - name: Build and push Docker image (Frontend)
+        id: pushFront
+        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+        with:
+          context: .
+          file: ./Frontend/frontend_dockerfile
+          push: true
+          tags: |
+            johnjosephwayne/evaluation_docker:latest
+            johnjosephwayne/evaluation_docker:frontend-${{ github.sha }}
+          labels: |
+            version=1.0
+            component=frontend
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: index.docker.io/johnjosephwayne/evaluation_docker
+          subject-digest: ${{ steps.pushBack.outputs.digest }}
+          push-to-registry: true
+
+      - name: Send Notification to Discord
+        run: |
+          # Get the tag dynamically from the backend build step
+          REPO="johnjosephwayne/evaluation_docker"
+          BACKEND_TAG="backend-${{ github.sha }}"
+          FRONTEND_TAG="frontend-${{ github.sha }}"
+          curl -X POST -H "Content-Type: application/json" \
+          -d "{\"content\": \"Nouvelle image Docker publiée !\\nBackend Tag: \`$BACKEND_TAG\`\\nFrontend Tag: \`$FRONTEND_TAG\`\\nRepo: $REPO\"}" \
           "${{ secrets.DISCORD_WEBHOOK_URL }}"
+
