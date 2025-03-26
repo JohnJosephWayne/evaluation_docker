@@ -45,8 +45,7 @@ jobs:
           file: ./Backend/backend_dockerfile
           push: true
           tags: |
-            johnjosephwayne/evaluation_docker:latest
-            johnjosephwayne/evaluation_docker:backend-${{ github.sha }}
+            johnjosephwayne/evaluation_docker_backend:latest
           labels: |
             version=1.0
             component=backend
@@ -59,8 +58,7 @@ jobs:
           file: ./Frontend/frontend_dockerfile
           push: true
           tags: |
-            johnjosephwayne/evaluation_docker:latest
-            johnjosephwayne/evaluation_docker:frontend-${{ github.sha }}
+            johnjosephwayne/evaluation_docker_frontend:latest
           labels: |
             version=1.0
             component=frontend
