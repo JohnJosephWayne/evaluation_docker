@@ -74,7 +74,7 @@ jobs:
         uses: actions/attest-build-provenance@v2
         with:
           subject-name: index.docker.io/johnjosephwayne/evaluation_docker_frontend
-          subject-digest: ${{ steps.pushBack.outputs.digest }}
+          subject-digest: ${{ steps.pushFront.outputs.digest }}
           push-to-registry: true
 
       - name: Send Notification to Discord
