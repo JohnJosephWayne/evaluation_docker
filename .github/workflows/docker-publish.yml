@@ -25,14 +25,14 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Extract metadata (tags, labels) for Docker
-        id: meta
+        id: meta1
         uses: docker/metadata-action@v4
         with:
           images: johnjosephwayne/evaluation_docker_backend
 
 
       - name: Extract metadata (tags, labels) for Docker
-        id: meta
+        id: meta2
         uses: docker/metadata-action@v4
         with:
           images: johnjosephwayne/evaluation_docker_frontend
@@ -65,14 +65,14 @@ jobs:
             version=1.0
             component=frontend
 
-      - name: Generate artifact attestation
+      - name: Generate artifact attestation1
         uses: actions/attest-build-provenance@v2
         with:
           subject-name: index.docker.io/johnjosephwayne/evaluation_docker_backend
           subject-digest: ${{ steps.pushBack.outputs.digest }}
           push-to-registry: true
 
-      - name: Generate artifact attestation
+      - name: Generate artifact attestation2
         uses: actions/attest-build-provenance@v2
         with:
           subject-name: index.docker.io/johnjosephwayne/evaluation_docker_frontend
