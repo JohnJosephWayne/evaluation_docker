@@ -7,9 +7,16 @@ const mysql = require("mysql2");
 const app = express();
 const port = 3000;
 
-app.use(express.json()); // Middleware to parse JSON request bodies
+app.use(express.json());
 
-// ✅ MySQL Database Connection
+app.listen(port, '0.0.0.0', () => {
+    console.log(`✅ Server started at http://0.0.0.0:${port}`);
+});
+
+const cors = require("cors");
+app.use(cors()); // ✅ Active CORS pour autoriser Angular à faire des requêtes
+
+
 const db = mysql.createConnection({
     host: "localhost",
     user: "root", // Change if necessary
@@ -20,9 +27,9 @@ const db = mysql.createConnection({
 // Connect to MySQL
 db.connect(err => {
     if (err) {
-        console.error("❌ Database connection failed:", err.message);
+        console.error("Database connection failed:", err.message);
     } else {
-        console.log("✅ Connected to MySQL Database");
+        console.log("Connected to MySQL Database");
 
         // Create `times` table if it doesn't exist
         db.query(`
@@ -31,38 +38,35 @@ db.connect(err => {
                 time DATETIME NOT NULL
             )
         `, (err) => {
-            if (err) console.error("❌ Error creating table:", err.message);
+            if (err) console.error("Error creating table:", err.message);
         });
     }
 });
 
-// ✅ POST `/time` - Insert current time into the database
 app.post("/time", async (req, res) => {
     const now = new Date().getHours();
-    now.setSeconds(0, 0); // Remove seconds & milliseconds
+    now.setSeconds(0, 0);
 
     db.query("INSERT INTO times (time) VALUES (?)", [now], (err, result) => {
         if (err) {
-            console.error("❌ Error inserting time:", err.message);
+            console.error("Error inserting time:", err.message);
             return res.status(500).send("Database error");
         }
-        console.log("✅ Time inserted:", now);
+        console.log("Time inserted:", now);
         res.json({ success: true, time: now });
     });
 });
 
-// ✅ GET `/times` - Retrieve all stored times
 app.get("/times", (req, res) => {
     db.query("SELECT * FROM times", (err, results) => {
         if (err) {
-            console.error("❌ Error fetching times:", err.message);
+            console.error("Error fetching times:", err.message);
             return res.status(500).send("Database error");
         }
         res.json(results);
     });
 });
 
-// ✅ Logs Middleware
 const logDir = path.join(__dirname, "logs");
 if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
@@ -76,7 +80,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// ✅ GET `/logs` - Retrieve server logs
 app.get("/logs", (req, res) => {
     if (fs.existsSync(logFile)) {
         const logs = fs.readFileSync(logFile, "utf8");
@@ -86,12 +89,7 @@ app.get("/logs", (req, res) => {
     }
 });
 
-// ✅ GET `/` - Root endpoint
 app.get("/", (req, res) => {
     res.send("Node.js server is running...");
 });
 
-// ✅ Start Server
-app.listen(port, () => {
-    console.log(`✅ Server started at http://localhost:${port}`);
-});

@@ -1,29 +1,28 @@
-
 services:
   # Backend service (Node.js)
-  app:
+  backend:
     build:
       context: .
-      dockerfile: Backend/backend_dockerfile
+      dockerfile: ./Backend/backend_dockerfile
+    image: johnjosephwayne/evaluation_docker
     networks:
       - backend
       - proxy
     depends_on:
       - db
-    volumes:
-      - app_logs:/app/logs
+    ports:
+      - "3000:3000"
 
-  # Frontend service (Angular + Nginx)
-  static:
+  # Frontend service (Angular)
+  frontend:
     build:
       context: .
-      dockerfile: Frontend/frontend_dockerfile
-    volumes:
-      - nginx_logs:/var/log/nginx
-    ports:
-      - "3000:80"
+      dockerfile: ./Frontend/frontend_dockerfile
+    image: johnjosephwayne/evaluation_docker
     networks:
       - proxy
+    depends_on:
+      - backend
 
   # Nginx reverse proxy service
   reverse-proxy:
@@ -36,8 +35,8 @@ services:
     networks:
       - proxy
     depends_on:
-      - app
-      - static
+      - backend
+      - frontend
 
   # MySQL database service
   db:
