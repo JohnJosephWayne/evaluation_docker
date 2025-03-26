@@ -10,13 +10,6 @@ services:
       - proxy
     depends_on:
       - db
-    ports:
-      - "3000:3000"
-    environment:
-      DB_HOST: db  # Make sure the backend connects to the MySQL service named 'db'
-      DB_USER: root
-      DB_PASSWORD: root
-      DB_NAME: evaluation_db
 
   # Frontend service (Angular)
   frontend:
@@ -30,15 +23,13 @@ services:
       - backend
     volumes:
       - ./dist:/usr/share/nginx/html  # Serve the Angular app with Nginx in production
-    ports:
-      - "80:80"  # Nginx will serve the frontend here in production
 
   # Nginx reverse proxy service
   reverse-proxy:
     image: nginx:1.27
     restart: always
     ports:
-      - "8080:80"  # Change to 8080 if port 80 is occupied
+      - "80:80"  # Change to 8080 if port 80 is occupied
     volumes:
       - ./reverse-proxy.conf:/etc/nginx/templates/default.conf.template
     networks:

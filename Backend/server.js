@@ -4,13 +4,15 @@ const express = require("express");
 const axios = require("axios");
 const mysql = require("mysql2");
 const cors = require("cors");
+const http = require("node:http");
+const {query} = require("express");
 
 const app = express();
 const port = 3000;
 
 // CORS Configuration
 const corsOptions = {
-    origin: 'http://localhost:4200',  // Replace with your Angular frontend URL
+    origin: '*',
     methods: 'GET,POST',
     allowedHeaders: 'Content-Type'
 };
@@ -40,7 +42,7 @@ const connectToDb = () => {
 connectToDb();
 
 // POST /time - Insert the current time into the database
-app.post("/time", async (req, res) => {
+app.get("/time", async (req, res) => {
     const now = new Date();
     now.setSeconds(0, 0);
 
@@ -53,6 +55,12 @@ app.post("/time", async (req, res) => {
         res.json({ success: true, time: now });
     });
 });
+
+// axios.post('http://localhost:3000/time'){
+//     query(
+//         "INSERT INTO times (time) VALUES (?)"
+//     )
+// }
 
 // GET /times - Retrieve all times from the database
 app.get("/times", (req, res) => {
@@ -92,4 +100,8 @@ app.get("/logs", (req, res) => {
 // GET / - Basic health check route
 app.get("/", (req, res) => {
     res.send("Node.js server is running...");
+});
+
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });
