@@ -3,46 +3,43 @@ const path = require("path");
 const express = require("express");
 const axios = require("axios");
 const mysql = require("mysql2");
+const cors = require("cors");
 
 const app = express();
 const port = 3000;
 
+// CORS Configuration
+const corsOptions = {
+    origin: 'http://localhost:4200',  // Replace with your Angular frontend URL
+    methods: 'GET,POST',
+    allowedHeaders: 'Content-Type'
+};
+app.use(cors(corsOptions)); // ✅ Active CORS
+
 app.use(express.json());
 
-app.listen(port, '0.0.0.0', () => {
-    console.log(`✅ Server started at http://0.0.0.0:${port}`);
-});
-
-const cors = require("cors");
-app.use(cors()); // ✅ Active CORS pour autoriser Angular à faire des requêtes
-
-
+// MySQL Connection with Retry Logic
 const db = mysql.createConnection({
-    host: "db",
-    user: "root", // Change if necessary
-    password: "root", // Change if necessary
-    database: "evaluation_db"
+    host: 'db',
+    user: 'root',
+    password: 'root',
+    database: 'evaluation_db'
 });
 
-// Connect to MySQL
-db.connect(err => {
-    if (err) {
-        console.error("Database connection failed:", err.message);
-    } else {
-        console.log("Connected to MySQL Database");
+const connectToDb = () => {
+    db.connect(err => {
+        if (err) {
+            console.error("Database connection failed:", err.message);
+            setTimeout(connectToDb, 5000);  // Retry every 5 seconds
+        } else {
+            console.log("Connected to MySQL Database");
+        }
+    });
+};
 
-        // Create `times` table if it doesn't exist
-        db.query(`
-            CREATE TABLE IF NOT EXISTS times (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                time DATETIME NOT NULL
-            )
-        `, (err) => {
-            if (err) console.error("Error creating table:", err.message);
-        });
-    }
-});
+connectToDb();
 
+// POST /time - Insert the current time into the database
 app.post("/time", async (req, res) => {
     const now = new Date();
     now.setSeconds(0, 0);
@@ -50,23 +47,25 @@ app.post("/time", async (req, res) => {
     db.query("INSERT INTO times (time) VALUES (?)", [now], (err, result) => {
         if (err) {
             console.error("Error inserting time:", err.message);
-            return res.status(500).send("Database error");
+            return res.status(500).json({ error: "Database error", details: err.message });
         }
         console.log("Time inserted:", now);
         res.json({ success: true, time: now });
     });
 });
 
+// GET /times - Retrieve all times from the database
 app.get("/times", (req, res) => {
     db.query("SELECT * FROM times", (err, results) => {
         if (err) {
             console.error("Error fetching times:", err.message);
-            return res.status(500).send("Database error");
+            return res.status(500).json({ error: "Database error", details: err.message });
         }
         res.json(results);
     });
 });
 
+// Logging requests
 const logDir = path.join(__dirname, "logs");
 if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
@@ -80,6 +79,7 @@ app.use((req, res, next) => {
     next();
 });
 
+// GET /logs - Read and return the log file
 app.get("/logs", (req, res) => {
     if (fs.existsSync(logFile)) {
         const logs = fs.readFileSync(logFile, "utf8");
@@ -89,7 +89,7 @@ app.get("/logs", (req, res) => {
     }
 });
 
+// GET / - Basic health check route
 app.get("/", (req, res) => {
     res.send("Node.js server is running...");
 });
-
