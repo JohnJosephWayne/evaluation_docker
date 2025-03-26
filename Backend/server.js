@@ -18,7 +18,7 @@ app.use(cors()); // ✅ Active CORS pour autoriser Angular à faire des requête
 
 
 const db = mysql.createConnection({
-    host: "localhost",
+    host: "db",
     user: "root", // Change if necessary
     password: "root", // Change if necessary
     database: "evaluation_db"
@@ -44,7 +44,7 @@ db.connect(err => {
 });
 
 app.post("/time", async (req, res) => {
-    const now = new Date().getHours();
+    const now = new Date();
     now.setSeconds(0, 0);
 
     db.query("INSERT INTO times (time) VALUES (?)", [now], (err, result) => {
