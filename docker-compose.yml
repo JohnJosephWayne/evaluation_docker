@@ -65,6 +65,7 @@ services:
     ports:
       - "8181:80"
     networks:
+      - backend
       - proxy
 
 networks:

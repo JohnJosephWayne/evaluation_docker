@@ -2,58 +2,96 @@ const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const axios = require("axios");
+const mysql = require("mysql2");
 
 const app = express();
 const port = 3000;
 
-/**
- * Envoie une notification sur Discord
- * @param {string} imageUrl - L'URL de l'image générée
- */
-async function sendDiscordNotification(imageUrl) {
-    try {
-        const message = {
-            content: `Image envoyé 🔥\n${imageUrl}`,
-        };
+app.use(express.json()); // Middleware to parse JSON request bodies
 
-        await axios.post(DISCORD_WEBHOOK_URL, message);
-        console.log("✅ Notification envoyée sur Discord !");
-    } catch (error) {
-        console.error("❌ Erreur lors de l'envoi du message Discord :", error.message);
+// ✅ MySQL Database Connection
+const db = mysql.createConnection({
+    host: "localhost",
+    user: "root", // Change if necessary
+    password: "root", // Change if necessary
+    database: "evaluation_db"
+});
+
+// Connect to MySQL
+db.connect(err => {
+    if (err) {
+        console.error("❌ Database connection failed:", err.message);
+    } else {
+        console.log("✅ Connected to MySQL Database");
+
+        // Create `times` table if it doesn't exist
+        db.query(`
+            CREATE TABLE IF NOT EXISTS times (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                time DATETIME NOT NULL
+            )
+        `, (err) => {
+            if (err) console.error("❌ Error creating table:", err.message);
+        });
     }
-}
+});
 
-// Assure-toi que le dossier logs existe
+// ✅ POST `/time` - Insert current time into the database
+app.post("/time", async (req, res) => {
+    const now = new Date().getHours();
+    now.setSeconds(0, 0); // Remove seconds & milliseconds
+
+    db.query("INSERT INTO times (time) VALUES (?)", [now], (err, result) => {
+        if (err) {
+            console.error("❌ Error inserting time:", err.message);
+            return res.status(500).send("Database error");
+        }
+        console.log("✅ Time inserted:", now);
+        res.json({ success: true, time: now });
+    });
+});
+
+// ✅ GET `/times` - Retrieve all stored times
+app.get("/times", (req, res) => {
+    db.query("SELECT * FROM times", (err, results) => {
+        if (err) {
+            console.error("❌ Error fetching times:", err.message);
+            return res.status(500).send("Database error");
+        }
+        res.json(results);
+    });
+});
+
+// ✅ Logs Middleware
 const logDir = path.join(__dirname, "logs");
 if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
 }
-
 const logFile = path.join(logDir, "server.log");
 
-// Middleware pour logger chaque requête HTTP
 app.use((req, res, next) => {
     const logEntry = `[${new Date().toISOString()}] ${req.method} ${req.url}\n`;
-    fs.appendFileSync(logFile, logEntry); // Ajout des logs dans le fichier
-    console.log(logEntry.trim()); // Affichage aussi dans la console
+    fs.appendFileSync(logFile, logEntry);
+    console.log(logEntry.trim());
     next();
 });
 
-// ✅ Nouvel endpoint pour récupérer les logs
+// ✅ GET `/logs` - Retrieve server logs
 app.get("/logs", (req, res) => {
     if (fs.existsSync(logFile)) {
         const logs = fs.readFileSync(logFile, "utf8");
         res.type("text/plain").send(logs);
     } else {
-        res.status(404).send("Aucun log disponible.");
+        res.status(404).send("No logs available.");
     }
 });
 
-// Endpoint principal
+// ✅ GET `/` - Root endpoint
 app.get("/", (req, res) => {
-    res.send("Serveur Node.js en cours d'exécution...");
+    res.send("Node.js server is running...");
 });
 
+// ✅ Start Server
 app.listen(port, () => {
-    console.log(`✅ Serveur démarré sur http://localhost:${port}`);
+    console.log(`✅ Server started at http://localhost:${port}`);
 });
