@@ -35,20 +35,28 @@ jobs:
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
         with:
           context: .
-          file: ./Backend/backend_dockerfile
+          file: ./Backend/backend.Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            johnjosephwayne/evaluation_docker:latest
+            johnjosephwayne/evaluation_docker:backend-${{ github.sha }}
+          labels: |
+            version=1.0
+            component=backend
 
       - name: Build and push Docker image (Frontend)
         id: pushFront
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
         with:
           context: .
-          file: ./Frontend/frontend_dockerfile
+          file: ./Frontend/frontend.Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            johnjosephwayne/evaluation_docker:latest
+            johnjosephwayne/evaluation_docker:frontend-${{ github.sha }}
+          labels: |
+            version=1.0
+            component=frontend
 
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v2
