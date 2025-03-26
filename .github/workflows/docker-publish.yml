@@ -28,7 +28,14 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: johnjosephwayne/evaluation_docker
+          images: johnjosephwayne/evaluation_docker_backend
+
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: johnjosephwayne/evaluation_docker_frontend
 
       - name: Build and push Docker image (Backend)
         id: pushBack
@@ -61,7 +68,14 @@ jobs:
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v2
         with:
-          subject-name: index.docker.io/johnjosephwayne/evaluation_docker
+          subject-name: index.docker.io/johnjosephwayne/evaluation_docker_backend
+          subject-digest: ${{ steps.pushBack.outputs.digest }}
+          push-to-registry: true
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: index.docker.io/johnjosephwayne/evaluation_docker_frontend
           subject-digest: ${{ steps.pushBack.outputs.digest }}
           push-to-registry: true
 

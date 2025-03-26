@@ -8,8 +8,6 @@ WORKDIR /app
 COPY ./Frontend .
 RUN npm install
 
-
-
 RUN npm run build --prod
 
 # Serve the Angular application using Nginx
