@@ -35,11 +35,11 @@ jobs:
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
         with:
           context: .
-          file: ./Backend/backend.Dockerfile
+          file: ./Backend/backend_dockerfile
           push: true
           tags: |
             johnjosephwayne/evaluation_docker:latest
-            johnjosephwayne/evaluation_docker:backend-${{ github.sha }}
+            johnjosephwayne/evaluation_dockerackend-${{ github.sha }}
           labels: |
             version=1.0
             component=backend
@@ -49,7 +49,7 @@ jobs:
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
         with:
           context: .
-          file: ./Frontend/frontend.Dockerfile
+          file: ./Frontend/frontend_dockerfile
           push: true
           tags: |
             johnjosephwayne/evaluation_docker:latest
