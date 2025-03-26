@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: ./Backend/backend_dockerfile
-    image: johnjosephwayne/evaluation_docker:backend_${GITHUB_SHA}
+    image: johnjosephwayne/evaluation_docker_backend:backend_${GITHUB_SHA}
     networks:
       - backend
       - proxy
