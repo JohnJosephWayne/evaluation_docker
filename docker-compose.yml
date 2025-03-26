@@ -3,7 +3,7 @@ services:
   # Backend service (Node.js)
   app:
     build:
-      context: ./Backend
+      context: .
       dockerfile: Backend/backend_dockerfile
     networks:
       - backend
@@ -16,7 +16,7 @@ services:
   # Frontend service (Angular + Nginx)
   static:
     build:
-      context: ./Frontend
+      context: .
       dockerfile: Frontend/frontend_dockerfile
     volumes:
       - nginx_logs:/var/log/nginx
